@@ -2,8 +2,9 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const slugify = require('slugify');
+require('dotenv').config();
 
-app.get('/', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
 	try {
 		const results = await db.query(`
             SELECT code, industry FROM industries 
@@ -14,7 +15,7 @@ app.get('/', async (req, res, next) => {
 	}
 });
 
-app.post('/', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
 	try {
 		const { industry } = req.body;
 		const code = slugify(industry, { lower: true, replacement: '_' });
@@ -29,3 +30,5 @@ app.post('/', async (req, res, next) => {
 		return next(err);
 	}
 });
+
+module.exports = router;

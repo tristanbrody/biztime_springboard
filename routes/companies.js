@@ -2,9 +2,12 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const slugify = require('slugify');
+require('dotenv').config();
 
 router.get('/', async (req, res, next) => {
-	const resultss = await db.query(`SELECT * FROM companies`);
+	const resultss = await db.query(
+		`SELECT c.code AS company_code, c.name AS company_name, i.code AS industry_code FROM companies AS c LEFT JOIN company_industry AS ci ON ci.company = c.code LEFT JOIN industries AS i ON ci.industry = i.code`
+	);
 
 	return res.json({ companies: resultss.rows });
 });
@@ -62,8 +65,7 @@ router.put('/:code', async (req, res, next) => {
 router.delete('/:code', async (req, res, next) => {
 	try {
 		const code = req.params.code;
-		const results = await db.query(`DELETE FROM companies WHERE code = $1`, [code]);
-
+		await db.query(`DELETE FROM companies WHERE code = $1`, [code]);
 		return res.json({ message: 'deleted' });
 	} catch (err) {
 		return next(err);

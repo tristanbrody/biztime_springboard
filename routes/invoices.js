@@ -1,6 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const db = require('../db');
+require('dotenv').config();
 
 router.get('/', async (req, res, next) => {
 	try {
@@ -83,3 +84,5 @@ router.delete('/:id', async (req, res, next) => {
 		return res.json({ message: 'deleted' });
 	} catch (err) {}
 });
+
+module.exports = router;

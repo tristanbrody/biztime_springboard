@@ -3,6 +3,7 @@
 const express = require('express');
 
 const app = express();
+require('dotenv').config();
 
 const companyRoutes = require('./routes/companies');
 const invoiceRoutes = require('./routes/invoices');
