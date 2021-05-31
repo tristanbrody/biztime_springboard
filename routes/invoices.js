@@ -6,7 +6,7 @@ require('dotenv').config();
 router.get('/', async (req, res, next) => {
 	try {
 		const result = await db.query(`SELECT * FROM invoices`);
-		return res.json({ invoice: result.rows[0] });
+		return res.json({ invoice: result.rows });
 	} catch (err) {
 		return next(err);
 	}
@@ -21,9 +21,12 @@ router.get('/:id', async (req, res, next) => {
         `,
 			[invoiceId]
 		);
-		const company = db.query(`SELECT code, name, description FROM companies WHERE code = $1`, [invoice.comp_code]);
-		const { id, amt, paid, add_date, paid_date } = invoice;
-		return res.json({ invoice: { id, amt, paid, add_date, paid_date, company: { company } } });
+		let company = await db.query(`SELECT code, name, description FROM companies WHERE code = $1`, [
+			invoice.rows[0].comp_code
+		]);
+		const { id, amt, paid, add_date, paid_date, comp_code } = invoice.rows[0];
+		company = company.rows[0];
+		return res.json({ invoice: { id, amt, paid, add_date, comp_code, paid_date, company: { company } } });
 	} catch (err) {
 		return next(err);
 	}

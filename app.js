@@ -3,7 +3,6 @@
 const express = require('express');
 
 const app = express();
-require('dotenv').config();
 
 const companyRoutes = require('./routes/companies');
 const invoiceRoutes = require('./routes/invoices');
@@ -14,13 +13,6 @@ app.use(express.json());
 app.use('/companies', companyRoutes);
 app.use('/invoices', invoiceRoutes);
 app.use('/industries', industryRoutes);
-
-/** 404 handler */
-
-app.use(function (req, res, next) {
-	const err = new ExpressError('Not Found', 404);
-	return next(err);
-});
 
 /** general error handler */
 
@@ -33,4 +25,11 @@ app.use((err, req, res, next) => {
 	});
 });
 
+/** 404 handler */
+
+app.use(function (req, res, next) {
+	// should return a response with a status of 404
+	// 404 shouldn't return an actual error
+	return res.sendStatus(404);
+});
 module.exports = app;

@@ -2,24 +2,20 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const slugify = require('slugify');
-require('dotenv').config();
 
 router.get('/', async (req, res, next) => {
-	const resultss = await db.query(
-		`SELECT c.code AS company_code, c.name AS company_name, i.code AS industry_code FROM companies AS c LEFT JOIN company_industry AS ci ON ci.company = c.code LEFT JOIN industries AS i ON ci.industry = i.code`
+	const results = await db.query(
+		`SELECT c.code AS company_code, c.name AS company_name, i.code AS industry_code FROM companies AS c LEFT JOIN company_industry AS ci ON ci.company = c.code LEFT JOIN industries AS i ON ci.industry = i.id`
 	);
 
-	return res.json({ companies: resultss.rows });
+	return res.json({ companies: results.rows });
 });
 
 router.get('/:code', async (req, res, next) => {
 	try {
 		const code = req.params.code;
 
-		const results = await db.query(
-			`SELECT name, code, description FROM companies WHERE code = $1 RETURNING name, code, description`,
-			[code]
-		);
+		const results = await db.query(`SELECT name, code, description FROM companies WHERE code = $1`, [code]);
 
 		return res.json({ company: results.rows[0] });
 	} catch (err) {
@@ -52,7 +48,7 @@ router.put('/:code', async (req, res, next) => {
 		const { name, description } = req.body;
 		const results = await db.query(
 			`
-            UPDATE companies SET name=$1, code, description = $2 FROM companies WHERE code = $3 RETURNING name, code, description
+            UPDATE companies SET name=$1, description = $2 WHERE code = $3 RETURNING name, code, description
         `,
 			[name, description, code]
 		);
@@ -65,8 +61,12 @@ router.put('/:code', async (req, res, next) => {
 router.delete('/:code', async (req, res, next) => {
 	try {
 		const code = req.params.code;
-		await db.query(`DELETE FROM companies WHERE code = $1`, [code]);
-		return res.json({ message: 'deleted' });
+		const result = await db.query(`DELETE FROM companies WHERE code = $1 RETURNING code`, [code]);
+		if (result.rows.length == 0) {
+			return res.sendStatus(404);
+		} else {
+			return res.json({ status: 'deleted' });
+		}
 	} catch (err) {
 		return next(err);
 	}

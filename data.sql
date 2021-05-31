@@ -2,6 +2,8 @@
 
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS companies;
+DROP TABLE if EXISTS industries;
+DROP TABLE if EXISTS company_industry;
 
 CREATE TABLE companies (
     code text PRIMARY KEY,
@@ -27,8 +29,10 @@ CREATE TABLE industries (
 
 CREATE TABLE company_industry (
     id serial PRIMARY KEY,
-    CONSTRAINT company FOREIGN KEY references companies(code),
-    CONSTRAINT industry FOREIGN KEY references industries(code) 
+    company text NOT NULL,
+    industry serial NOT NULL,
+    CONSTRAINT company_fk FOREIGN KEY(company) REFERENCES companies(code),
+    CONSTRAINT industry_fk FOREIGN KEY(industry) REFERENCES industries(id)
 );
 
 INSERT INTO companies

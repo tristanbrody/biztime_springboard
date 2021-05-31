@@ -2,7 +2,6 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const slugify = require('slugify');
-require('dotenv').config();
 
 router.get('/', async (req, res, next) => {
 	try {
@@ -27,6 +26,16 @@ router.post('/', async (req, res, next) => {
 		);
 		return res.json(results.rows[0]);
 	} catch {
+		return next(err);
+	}
+});
+
+router.delete('/:id', async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		await db.query(`DELETE FROM industries WHERE id = $1`, [id]);
+		return res.json({ message: 'deleted' });
+	} catch (err) {
 		return next(err);
 	}
 });
